@@ -1,0 +1,189 @@
+<!DOCTYPE PATCH  SYSTEM "http://vvvv.org/versions/vvvv45beta31.2.dtd" >
+   <PATCH nodename="C:\_dev\LTCSharp\LTCNodes\Decoder (Timecode LTC).v4p" systemname="Decoder (Timecode LTC)" filename="C:\_dev\LTCSharp\LTCNodes\Decoder (Timecode LTC).v4p">
+   <BOUNDS type="Window" left="9900" top="2250" width="9000" height="9750">
+   </BOUNDS>
+   <NODE nodename="IOBox (String)" componentmode="InABox" id="1" systemname="IOBox (String)">
+   <BOUNDS type="Box" left="5235" top="6855" width="2955" height="450">
+   </BOUNDS>
+   <BOUNDS type="Node" left="5235" top="6855" width="0" height="0">
+   </BOUNDS>
+   <PIN pinname="Default" slicecount="1" values="||">
+   </PIN>
+   <PIN pinname="File Mask" slicecount="1" values="||">
+   </PIN>
+   <PIN pinname="Maximum Characters" slicecount="1" values="-1">
+   </PIN>
+   <PIN pinname="Input String" visible="1" slicecount="1" values="||">
+   </PIN>
+   <PIN pinname="Descriptive Name" slicecount="1" values="Status">
+   </PIN>
+   </NODE>
+   <NODE systemname="Decoder (Timecode LTC)" filename="bin\Debug\VVVV.Nodes.Timecode.LTC.dll" nodename="Decoder (Timecode LTC)" componentmode="Hidden" id="2">
+   <BOUNDS type="Node" left="975" top="5970" width="4320" height="270">
+   </BOUNDS>
+   <PIN pinname="Status" visible="1">
+   </PIN>
+   <PIN pinname="Device" visible="1" slicecount="1" values="||">
+   </PIN>
+   <PIN pinname="Timecode" visible="1">
+   </PIN>
+   <PIN pinname="Channel Index" slicecount="1" values="0">
+   </PIN>
+   <PIN pinname="Framerate" slicecount="1" values="25">
+   </PIN>
+   <PIN pinname="Channel Count" slicecount="1" values="2">
+   </PIN>
+   </NODE>
+   <LINK srcnodeid="2" srcpinname="Status" dstnodeid="1" dstpinname="Input String">
+   </LINK>
+   <NODE systemname="ListDevices (NAudio)" filename="bin\Debug\VVVV.Nodes.Timecode.LTC.dll" nodename="ListDevices (NAudio)" componentmode="Hidden" id="3">
+   <BOUNDS type="Node" left="990" top="630" width="100" height="100">
+   </BOUNDS>
+   <PIN pinname="State" visible="1" slicecount="1" values="Active">
+   </PIN>
+   <PIN pinname="Device" visible="1">
+   </PIN>
+   <PIN pinname="Type" slicecount="1" values="All">
+   </PIN>
+   <PIN pinname="Refresh" slicecount="1" values="0">
+   </PIN>
+   </NODE>
+   <NODE nodename="IOBox (String)" componentmode="InABox" id="4" systemname="IOBox (String)">
+   <BOUNDS type="Box" left="1395" top="960" width="4095" height="3975">
+   </BOUNDS>
+   <BOUNDS type="Node" left="1395" top="960" width="0" height="0">
+   </BOUNDS>
+   <PIN pinname="Default" slicecount="1" values="||">
+   </PIN>
+   <PIN pinname="File Mask" slicecount="1" values="||">
+   </PIN>
+   <PIN pinname="Maximum Characters" slicecount="1" values="-1">
+   </PIN>
+   <PIN pinname="Rows" slicecount="1" values="13">
+   </PIN>
+   <PIN pinname="Show Grid" slicecount="1" values="1">
+   </PIN>
+   <PIN pinname="String Type" slicecount="1" values="String">
+   </PIN>
+   <PIN pinname="Show SliceIndex" slicecount="1" values="1">
+   </PIN>
+   </NODE>
+   <LINK srcnodeid="3" srcpinname="Name" dstnodeid="4" dstpinname="Input String">
+   </LINK>
+   <NODE nodename="IOBox (String)" componentmode="InABox" id="5" systemname="IOBox (String)">
+   <BOUNDS type="Box" left="5820" top="930" width="1185" height="4020">
+   </BOUNDS>
+   <BOUNDS type="Node" left="5820" top="930" width="0" height="0">
+   </BOUNDS>
+   <PIN pinname="Default" slicecount="1" values="||">
+   </PIN>
+   <PIN pinname="File Mask" slicecount="1" values="||">
+   </PIN>
+   <PIN pinname="Maximum Characters" slicecount="1" values="-1">
+   </PIN>
+   <PIN pinname="Rows" slicecount="1" values="13">
+   </PIN>
+   <PIN pinname="Input String" visible="1">
+   </PIN>
+   <PIN pinname="Show Grid" slicecount="1" values="1">
+   </PIN>
+   <PIN pinname="String Type" slicecount="1" values="String">
+   </PIN>
+   </NODE>
+   <LINK srcnodeid="3" srcpinname="State" dstnodeid="5" dstpinname="Input String">
+   </LINK>
+   <NODE systemname="GetSlice (Node)" nodename="GetSlice (Node)" componentmode="Hidden" id="6">
+   <BOUNDS type="Node" left="990" top="5220" width="100" height="100">
+   </BOUNDS>
+   <PIN pinname="Input Node" visible="1">
+   </PIN>
+   <PIN pinname="Output Node" visible="1">
+   </PIN>
+   <PIN pinname="Index" slicecount="1" values="3">
+   </PIN>
+   </NODE>
+   <LINK srcnodeid="3" srcpinname="Device" dstnodeid="6" dstpinname="Input Node">
+   </LINK>
+   <NODE nodename="IOBox (Node)" componentmode="InABox" id="7" systemname="IOBox (Node)">
+   <BOUNDS type="Box" left="990" top="7275" width="795" height="240">
+   </BOUNDS>
+   <BOUNDS type="Node" left="990" top="7275" width="0" height="0">
+   </BOUNDS>
+   </NODE>
+   <LINK srcnodeid="2" srcpinname="Timecode" dstnodeid="7" dstpinname="Input Node">
+   </LINK>
+   <NODE systemname="Split (Timecode)" filename="bin\Debug\VVVV.Nodes.Timecode.LTC.dll" nodename="Split (Timecode)" componentmode="Hidden" id="8">
+   <BOUNDS type="Node" left="2070" top="6630" width="1830" height="270">
+   </BOUNDS>
+   <PIN pinname="Input" visible="1">
+   </PIN>
+   </NODE>
+   <LINK srcnodeid="2" srcpinname="Timecode" dstnodeid="8" dstpinname="Input">
+   </LINK>
+   <NODE nodename="IOBox (Value Advanced)" componentmode="InABox" id="9" systemname="IOBox (Value Advanced)">
+   <BOUNDS type="Box" left="2070" top="7530" width="285" height="240">
+   </BOUNDS>
+   <BOUNDS type="Node" left="2070" top="7530" width="0" height="0">
+   </BOUNDS>
+   <PIN pinname="Units" slicecount="1" values="||">
+   </PIN>
+   <PIN pinname="Precision" slicecount="1" values="4">
+   </PIN>
+   <PIN pinname="Value Type" slicecount="1" values="Integer">
+   </PIN>
+   <PIN pinname="Descriptive Name" slicecount="1" values="Hours">
+   </PIN>
+   </NODE>
+   <LINK srcnodeid="8" srcpinname="Hours" dstnodeid="9" dstpinname="Y Input Value">
+   </LINK>
+   <NODE nodename="IOBox (Value Advanced)" componentmode="InABox" id="10" systemname="IOBox (Value Advanced)">
+   <BOUNDS type="Box" left="2700" top="7530" width="285" height="240">
+   </BOUNDS>
+   <BOUNDS type="Node" left="2700" top="7530" width="0" height="0">
+   </BOUNDS>
+   <PIN pinname="Units" slicecount="1" values="||">
+   </PIN>
+   <PIN pinname="Precision" slicecount="1" values="4">
+   </PIN>
+   <PIN pinname="Value Type" slicecount="1" values="Integer">
+   </PIN>
+   <PIN pinname="Descriptive Name" slicecount="1" values="Minutes">
+   </PIN>
+   </NODE>
+   <LINK srcnodeid="8" srcpinname="Minutes" dstnodeid="10" dstpinname="Y Input Value">
+   </LINK>
+   <NODE nodename="IOBox (Value Advanced)" componentmode="InABox" id="11" systemname="IOBox (Value Advanced)">
+   <BOUNDS type="Box" left="3345" top="7530" width="285" height="240">
+   </BOUNDS>
+   <BOUNDS type="Node" left="3345" top="7530" width="0" height="0">
+   </BOUNDS>
+   <PIN pinname="Units" slicecount="1" values="||">
+   </PIN>
+   <PIN pinname="Precision" slicecount="1" values="4">
+   </PIN>
+   <PIN pinname="Value Type" slicecount="1" values="Integer">
+   </PIN>
+   <PIN pinname="Descriptive Name" slicecount="1" values="Seconds">
+   </PIN>
+   </NODE>
+   <LINK srcnodeid="8" srcpinname="Seconds" dstnodeid="11" dstpinname="Y Input Value">
+   </LINK>
+   <NODE nodename="IOBox (Value Advanced)" componentmode="InABox" id="12" systemname="IOBox (Value Advanced)">
+   <BOUNDS type="Box" left="3855" top="7530" width="285" height="240">
+   </BOUNDS>
+   <BOUNDS type="Node" left="3855" top="7530" width="0" height="0">
+   </BOUNDS>
+   <PIN pinname="Units" slicecount="1" values="||">
+   </PIN>
+   <PIN pinname="Precision" slicecount="1" values="4">
+   </PIN>
+   <PIN pinname="Value Type" slicecount="1" values="Integer">
+   </PIN>
+   <PIN pinname="Descriptive Name" slicecount="1" values="Frame">
+   </PIN>
+   </NODE>
+   <LINK srcnodeid="8" srcpinname="Frame" dstnodeid="12" dstpinname="Y Input Value">
+   </LINK>
+   <LINK srcnodeid="6" srcpinname="Output Node" dstnodeid="2" dstpinname="Device">
+   </LINK>
+   </PATCH>
