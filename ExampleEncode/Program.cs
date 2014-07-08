@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using NAudio.Wave;
 
+using LTCSharp;
 namespace ExampleEncode
 {
 	class Source : IWaveProvider

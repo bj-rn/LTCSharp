@@ -3,8 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+
+using System.ComponentModel.Composition;
+
 using NAudio.CoreAudioApi;
 using NAudio.Wave;
+
+using VVVV.Hosting.IO;
 using VVVV.PluginInterfaces.V2;
 
 using LTCSharp;
@@ -20,28 +25,32 @@ namespace VVVV.Nodes.LTC
                 Author = "sebl", 
                 AutoEvaluate = true)]
     #endregion PluginInfo
+
     public class EncoderNode : IPluginEvaluate, IDisposable
     {
-        class EncodeInstance : IWaveProvider
+        class LTCEncoder : IWaveProvider
         {
-            LTCSharp.Encoder FEncoder;            
+            LTCSharp.Encoder FEncoder;
 
-            public EncodeInstance(double SampleRate, int fps)
+            public LTCEncoder(double SampleRate, int fps, TVStandard tvstandard = TVStandard.TV525_60i)
             {
                 FEncoder = new LTCSharp.Encoder(SampleRate,
                     fps, 
-                    LTCSharp.TVStandard.TV525_60i, 
+                    tvstandard, 
                     LTCSharp.BGFlags.NONE);
+            }
+
+            public void Dispose() 
+            {
+                FEncoder.Dispose();
             }
 
             public int Read(byte[] buffer, int offset, int count)
             {
                 lock (FEncoder)
                 {
-                    //Console.Write("bip");
                     FEncoder.encodeFrame();
                     int size = FEncoder.getBuffer(buffer, offset);
-                    //Console.WriteLine(size);
                     return size;
                 }
             }
@@ -72,84 +81,140 @@ namespace VVVV.Nodes.LTC
             }
         }
 
-#pragma warning disable 649
-
-        [Input("Input")]
+        #pragma warning disable 649
+        [Input("Timecode", IsSingle = true)]
         IDiffSpread<Timecode> FInTimecode;
 
-        //[Input("Device")]
-        //IDiffSpread<MMDevice> FInDevice;
+        [Input("SampleRate", IsSingle = true, DefaultValue = 48000)]
+        IDiffSpread<int> FSampleRate;
 
-        //[Input("Channel Count", DefaultValue = 2)]
-        //IDiffSpread<uint> FInChannels;
+        [Input("FPS", IsSingle = true, DefaultValue = 60)]
+        IDiffSpread<int> FFPS;
 
-        //[Input("Channel Index")]
-        //IDiffSpread<uint> FInChannel;
+        [Input("TVStandards", DefaultEnumEntry = "TV525_60i", IsSingle = true)]
+        IDiffSpread<TVStandard> FTVStandards;
 
-        //[Output("Timecode")]
-        //ISpread<LTCSharp.Timecode> FOutTimecode;
+        [Input("Volume", IsSingle = true, DefaultValue = 0.5, MinValue = 0, MaxValue = 1, Visibility = PinVisibility.OnlyInspector)]
+        IDiffSpread<float> FVolume;
 
-        [Output("Status")]
+        [Input("Enable", IsSingle = true, DefaultBoolean = true)]
+        ISpread<bool> FEnable;
+
+
+        [Output("Status", IsSingle= true)]
         ISpread<string> FOutStatus;
-#pragma warning restore
+        #pragma warning restore
 
-        Spread<EncodeInstance> FInstances = new Spread<EncodeInstance>(0);
-        Spread<WaveOut> FWaveOuts = new Spread<WaveOut>(0);
-        bool firstStart = true;
+        private WaveOut FWaveOut;
+        private LTCEncoder FLTCEncoder;
+        private bool FFirstFrame = true;
+
+
+        [ImportingConstructor]
+        public EncoderNode()
+        {
+        //    FOutStatus.SliceCount = 10;
+
+        //    try
+        //    {
+        //        WaveOut FWaveOut = new WaveOut();
+        //        LTCEncoder FLTCEncoder = new LTCEncoder(44100, 30);
+
+
+        //        FWaveOut.Init(FLTCEncoder);
+
+        //        FOutStatus[0] = "OK";
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        FOutStatus[0] = e.Message;
+        //    }
+
+        }
+
+        public void Dispose()
+        {
+            FWaveOut.Stop();
+            FWaveOut.Dispose();
+        }
+
 
         public void Evaluate(int SpreadMax)
         {
-            // do the following OnStart
-            if (firstStart || FInstances.SliceCount != SpreadMax)
-            {
-                FInstances.SliceCount = 0;
-                FOutStatus.SliceCount = SpreadMax;
+           
+             for (int i = 0; i < SpreadMax; i++)
+             {
 
-                foreach (var wave in FWaveOuts)
+                 if (FFirstFrame)
+                 {
+                     FFirstFrame = false;
+                     FOutStatus.SliceCount = 1;
+
+                     try
+                     {
+                         FWaveOut = new WaveOut();
+                         FLTCEncoder = new LTCEncoder(48000, 60);
+
+                         FWaveOut.Init(FLTCEncoder);
+
+                         FOutStatus[0] = "OK";
+                     }
+                     catch (Exception e)
+                     {
+                         FOutStatus[0] = e.Message;
+                     }
+
+
+                 }
+
+
+                 if (FSampleRate.IsChanged || FFPS.IsChanged || FTVStandards.IsChanged)
+                 {
+
+                     try
+                     {
+                         FWaveOut.Stop();
+                         FLTCEncoder = null;
+
+                         FLTCEncoder = new LTCEncoder(FSampleRate[0], FFPS[0], FTVStandards[0]);
+
+                         FWaveOut.Init(FLTCEncoder);
+                        
+                     }
+                     catch (Exception e)
+                     {
+                         FOutStatus[0] = e.Message;
+                     }
+                 
+                 }
+
+
+                if (FLTCEncoder != null)
                 {
-                    if (wave != null)
+
+                    FOutStatus[i] = "OK";
+
+                    if (FInTimecode[0] != null)
                     {
-                        wave.Stop();
-                        wave.Dispose();
-                    }
-                }
-
-                for (int i = 0; i < SpreadMax; i++)
-                {
-                    try
-                    {
-                        var waveOut = new WaveOut();
-                        FWaveOuts.Add(waveOut);
-
-                        var instance = new EncodeInstance(44100, 30);
-                        FInstances.Add(instance);
-
-                        waveOut.Init(instance);
-                        waveOut.Play();
-
-                        FOutStatus[i] = "OK";
-                    }
-                    catch (Exception e)
-                    {
-                        FInstances.Add(null);
-                        FOutStatus[i] = e.Message;
-                    }
-                }
-            }
-
-            for (int i = 0; i < FInstances.SliceCount; i++)
-            {
-                if (FInstances[i] != null)
-                {
-                    if (FInTimecode[i] != null)
-                    {
-                        if (FWaveOuts[i].PlaybackState == PlaybackState.Paused)
-                            FWaveOuts[i].Resume();
 
                         try
                         {
-                            float vol = FWaveOuts[i].Volume;
-                            this.FInstances[i].SetTimecode(FInTimecode[i]);
+                            if (FEnable[0] == true)
+                            {
+
+                                FWaveOut.Play();
+                            }
+                            else
+                            {
+                                FWaveOut.Pause();
+                            }
+
+                            if (FVolume.IsChanged)
+                            {
+                                FWaveOut.Volume = FVolume[0];
+                            }
+
+                            FLTCEncoder.SetTimecode(FInTimecode[i]);
                         }
                         catch (Exception e)
                         {
@@ -158,26 +223,11 @@ namespace VVVV.Nodes.LTC
                     }
                     else
                     {
-                        FWaveOuts[i].Pause();
+                        FWaveOut.Pause();
                         FOutStatus[i] = "You have to provide a Timecode";
                     }
                 }
-                //else
-                //{
-                //    FOutTimecode[i] = null;
-                //}
-            }
-        }
-
-        public void Dispose()
-        {
-            foreach (var wave in FWaveOuts)
-            {
-                if (wave != null)
-                {
-                    wave.Stop();
-                    wave.Dispose();
-                }
+              
             }
         }
 
