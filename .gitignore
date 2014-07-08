@@ -31,6 +31,11 @@ obj/
 [Rr]elease*/
 Ankh.NoLoad
 
+#Nuget
+/packages/*
+!/packages/repositories.config
+
+
 #Tooling
 _ReSharper*/
 *.resharper
