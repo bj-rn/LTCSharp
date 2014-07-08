@@ -23,15 +23,9 @@
    If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifdef _MSC_VER
-	#include <limits>
-	#define INFINITY std::numeric_limits<double>::max();
-	#ifndef rint
-		float rint(float input) {
-			return floor(input + 0.5f);
-		}
-	#endif
-#endif
+
+#define INFINITY std::numeric_limits<double>::max();
+
 
 /** turn a numeric literal into a hex constant
  *  (avoids problems with leading zeroes)
@@ -113,7 +107,7 @@
 
 static double calc_volume_db(LTCDecoder *d) {
 	if (d->snd_to_biphase_max <= d->snd_to_biphase_min)
-		return -INFINITY;
+		return - INFINITY;
 	return (20.0 * log10((d->snd_to_biphase_max - d->snd_to_biphase_min) / 255.0));
 }
 
